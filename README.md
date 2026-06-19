@@ -70,6 +70,7 @@ body { display: flex; flex-direction: column; }
 .toggle-row { display: flex; gap: 6px; flex-wrap: wrap; }
 .tog { flex: 1; min-width: 0; padding: 9px 6px; font-size: 13px; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; color: var(--text2); text-align: center; white-space: nowrap; transition: all 0.12s; }
 .tog.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 500; }
+.toggle-row-wrap .tog { flex: 1 1 calc(50% - 3px); min-width: calc(50% - 3px); }
 
 /* Sliders */
 .slider-wrap { display: flex; align-items: center; gap: 10px; }
@@ -190,8 +191,10 @@ body { display: flex; flex-direction: column; }
     </div>
     <div class="field"><label>Cycle day</label><input type="number" id="f-cycle" min="1" max="40" placeholder="e.g. 14"></div>
     <div class="field"><label>Cycle phase</label>
-      <div class="toggle-row">
+      <div class="toggle-row toggle-row-wrap">
+        <div class="tog" onclick="tog(this,'phase','Menstruation')">Menstruation</div>
         <div class="tog" onclick="tog(this,'phase','Follicular')">Follicular</div>
+        <div class="tog" onclick="tog(this,'phase','Ovulation')">Ovulation</div>
         <div class="tog" onclick="tog(this,'phase','Luteal')">Luteal</div>
       </div>
     </div>
