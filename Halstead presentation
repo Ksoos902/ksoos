@@ -1,0 +1,502 @@
+const pptxgen = require("/home/claude/.npm-global/lib/node_modules/pptxgenjs");
+const React = require("/home/claude/.npm-global/lib/node_modules/react");
+const ReactDOMServer = require("/home/claude/.npm-global/lib/node_modules/react-dom/server");
+const sharp = require("/home/claude/.npm-global/lib/node_modules/sharp");
+const icons = require("/home/claude/.npm-global/lib/node_modules/react-icons/fa");
+const mdIcons = require("/home/claude/.npm-global/lib/node_modules/react-icons/md");
+const biIcons = require("/home/claude/.npm-global/lib/node_modules/react-icons/bi");
+
+async function iconPng(IconComponent, color, size = 256) {
+  const svg = ReactDOMServer.renderToStaticMarkup(
+    React.createElement(IconComponent, { color, size: String(size) })
+  );
+  const buf = await sharp(Buffer.from(svg)).png().toBuffer();
+  return "image/png;base64," + buf.toString("base64");
+}
+
+async function main() {
+  const pres = new pptxgen();
+  pres.layout = "LAYOUT_16x9";
+  pres.title = "Halstead Submission Handling Discovery";
+
+  // Palette
+  const NAV = "1A2B4A";    // Dark navy
+  const MID = "2D4A7A";    // Mid navy
+  const ACC = "E8531A";    // Orange accent
+  const LGT = "F0F4FA";    // Light bg
+  const WHT = "FFFFFF";
+  const GRY = "64748B";
+  const RED = "DC2626";
+  const GRN = "16A34A";
+  const YLW = "D97706";
+
+  // ─── SLIDE 1: TITLE / EXECUTIVE SUMMARY ───────────────────────────────────
+  {
+    const s = pres.addSlide();
+    s.background = { color: NAV };
+
+    // Left panel – dark
+    s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: 5.2, h: 5.625, fill: { color: NAV }, line: { color: NAV } });
+    // Right panel – slightly lighter
+    s.addShape(pres.shapes.RECTANGLE, { x: 5.2, y: 0, w: 4.8, h: 5.625, fill: { color: MID }, line: { color: MID } });
+
+    // Title block
+    s.addText("SUBMISSION HANDLING\nDISCOVERY", {
+      x: 0.5, y: 0.55, w: 4.5, h: 1.4,
+      fontSize: 26, bold: true, color: WHT, fontFace: "Cambria", align: "left", valign: "top"
+    });
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 2.08, w: 0.45, h: 0.06, fill: { color: ACC }, line: { color: ACC } });
+    s.addText("Executive Summary", { x: 0.5, y: 2.22, w: 4.5, h: 0.4, fontSize: 14, color: "A0B4D0", fontFace: "Calibri", align: "left" });
+    s.addText("Halstead Insurance Group", { x: 0.5, y: 4.95, w: 4.5, h: 0.3, fontSize: 11, color: "6888A8", fontFace: "Calibri", align: "left" });
+
+    // Right side – key findings
+    s.addText("KEY FINDINGS", { x: 5.5, y: 0.45, w: 4.0, h: 0.35, fontSize: 11, bold: true, color: ACC, fontFace: "Calibri", charSpacing: 2 });
+
+    const findings = [
+      "No controlled intake process",
+      "No formal triage or workload allocation",
+      "Duplicate submissions & duplicate effort",
+      "Manual re-keying introduces errors",
+      "Poor status management & reporting",
+      "Renewals and submissions fall through",
+      "Decisions made without reliable metrics",
+    ];
+    findings.forEach((f, i) => {
+      s.addShape(pres.shapes.OVAL, { x: 5.5, y: 0.88 + i * 0.61, w: 0.2, h: 0.2, fill: { color: RED }, line: { color: RED } });
+      s.addText(f, { x: 5.82, y: 0.84 + i * 0.61, w: 3.85, h: 0.28, fontSize: 11.5, color: WHT, fontFace: "Calibri", valign: "middle" });
+    });
+
+    // Bottom recommendation bar
+    s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 5.2, w: 10, h: 0.425, fill: { color: ACC }, line: { color: ACC } });
+    s.addText("RECOMMENDATION: Prioritise process control, ownership and data quality before AI, apps or additional headcount.", {
+      x: 0.4, y: 5.2, w: 9.2, h: 0.425, fontSize: 11, bold: true, color: WHT, fontFace: "Calibri", align: "left", valign: "middle"
+    });
+  }
+
+  // ─── SLIDE 2: PROBLEM STATEMENT ────────────────────────────────────────────
+  {
+    const s = pres.addSlide();
+    s.background = { color: LGT };
+
+    // Header bar
+    s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 0.85, fill: { color: NAV }, line: { color: NAV } });
+    s.addText("PROBLEM STATEMENT", { x: 0.5, y: 0, w: 9, h: 0.85, fontSize: 22, bold: true, color: WHT, fontFace: "Cambria", valign: "middle" });
+
+    // Business Problem
+    s.addText("Business Problem", { x: 0.4, y: 1.05, w: 4.5, h: 0.35, fontSize: 14, bold: true, color: NAV, fontFace: "Cambria" });
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+      x: 0.4, y: 1.45, w: 4.5, h: 1.45, fill: { color: WHT }, rectRadius: 0.08,
+      shadow: { type: "outer", color: "000000", blur: 8, offset: 2, angle: 45, opacity: 0.1 }
+    });
+    s.addText(
+      "Halstead lacks a controlled, auditable and measurable submission intake process.\n\nSubmissions arrive through multiple channels and are managed inconsistently, resulting in duplicate effort, missed opportunities, poor data quality and unreliable management information.",
+      { x: 0.55, y: 1.55, w: 4.2, h: 1.25, fontSize: 11.5, color: "334155", fontFace: "Calibri", valign: "top" }
+    );
+
+    // Desired Outcomes
+    s.addText("Desired Outcome", { x: 0.4, y: 3.05, w: 4.5, h: 0.35, fontSize: 14, bold: true, color: NAV, fontFace: "Cambria" });
+    const outcomes = ["Ownership", "Traceability", "Operational visibility", "Reliable reporting", "Scalable growth"];
+    outcomes.forEach((o, i) => {
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+        x: 0.4 + (i % 3) * 1.52, y: 3.45 + Math.floor(i / 3) * 0.6, w: 1.42, h: 0.48,
+        fill: { color: NAV }, rectRadius: 0.06, line: { color: NAV }
+      });
+      s.addText(o, { x: 0.4 + (i % 3) * 1.52, y: 3.45 + Math.floor(i / 3) * 0.6, w: 1.42, h: 0.48, fontSize: 10.5, color: WHT, fontFace: "Calibri", align: "center", valign: "middle" });
+    });
+
+    // Evidence table
+    s.addText("Evidence", { x: 5.3, y: 1.05, w: 4.3, h: 0.35, fontSize: 14, bold: true, color: NAV, fontFace: "Cambria" });
+    const rows = [
+      [{ text: "Observation", options: { bold: true, color: WHT, fill: { color: NAV } } }, { text: "Evidence", options: { bold: true, color: WHT, fill: { color: NAV } } }],
+      ["Multiple intake channels", "Email, Portal, Phone, Broker Spreadsheet"],
+      ["Missing ownership", "First-come-first-served allocation"],
+      ["Duplicate submissions", "Same joinery firm quoted twice"],
+      ["Data quality issues", "Manual re-keying, inconsistent statuses"],
+      ["Poor visibility", "COO cannot determine conversion rates"],
+      ["Missed opportunities", "Lost renewals and broker complaints"],
+    ];
+    s.addTable(rows, {
+      x: 5.3, y: 1.45, w: 4.3, h: 3.5,
+      colW: [1.85, 2.45],
+      fontSize: 10.5, fontFace: "Calibri",
+      border: { pt: 0.5, color: "CBD5E1" },
+      align: "left",
+      rowH: 0.48,
+      fill: { color: WHT },
+    });
+  }
+
+  // ─── SLIDE 3: ROOT CAUSE & GAP ANALYSIS ────────────────────────────────────
+  {
+    const s = pres.addSlide();
+    s.background = { color: LGT };
+
+    s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 0.85, fill: { color: NAV }, line: { color: NAV } });
+    s.addText("ROOT CAUSE & GAP ANALYSIS", { x: 0.5, y: 0, w: 9, h: 0.85, fontSize: 22, bold: true, color: WHT, fontFace: "Cambria", valign: "middle" });
+
+    // Root cause arrows
+    s.addText("Root Cause Analysis", { x: 0.4, y: 1.0, w: 4.3, h: 0.32, fontSize: 13, bold: true, color: NAV, fontFace: "Cambria" });
+    const rcRows = [
+      ["Symptom", "Root Cause"],
+      ["Poor reporting", "Poor data quality"],
+      ["Poor data quality", "Manual re-keying"],
+      ["Duplicate work", "No duplicate detection"],
+      ["Missed submissions", "No formal triage process"],
+      ["Lost business", "Lack of workflow visibility"],
+      ["Capacity concerns", "Operational inefficiency"],
+    ];
+    rcRows.forEach((r, i) => {
+      const isHeader = i === 0;
+      const bgCol = isHeader ? NAV : (i % 2 === 0 ? WHT : "EDF2FA");
+      const textCol = isHeader ? WHT : "1E293B";
+      s.addShape(pres.shapes.RECTANGLE, { x: 0.4, y: 1.38 + i * 0.47, w: 2.1, h: 0.45, fill: { color: bgCol }, line: { color: "CBD5E1" } });
+      s.addText(r[0], { x: 0.4, y: 1.38 + i * 0.47, w: 2.1, h: 0.45, fontSize: isHeader ? 10 : 10.5, bold: isHeader, color: textCol, fontFace: "Calibri", align: "center", valign: "middle" });
+      if (!isHeader) {
+        s.addShape(pres.shapes.RECTANGLE, { x: 2.5, y: 1.57 + i * 0.47, w: 0.35, h: 0.06, fill: { color: ACC }, line: { color: ACC } });
+      }
+      s.addShape(pres.shapes.RECTANGLE, { x: 2.85, y: 1.38 + i * 0.47, w: 1.85, h: 0.45, fill: { color: isHeader ? MID : bgCol }, line: { color: "CBD5E1" } });
+      s.addText(r[1], { x: 2.85, y: 1.38 + i * 0.47, w: 1.85, h: 0.45, fontSize: isHeader ? 10 : 10.5, bold: isHeader, color: textCol, fontFace: "Calibri", align: "center", valign: "middle" });
+    });
+
+    // Gap analysis
+    s.addText("Gap Analysis", { x: 5.1, y: 1.0, w: 4.5, h: 0.32, fontSize: 13, bold: true, color: NAV, fontFace: "Cambria" });
+    const gaps = [
+      ["Controlled intake", "Multiple channels", "HIGH"],
+      ["Structured triage", "First-come-first-served", "HIGH"],
+      ["Single source of truth", "Shadow spreadsheets", "HIGH"],
+      ["Standard workflow", "Inconsistent statuses", "HIGH"],
+      ["Reliable MI", "Manual reconciliation", "HIGH"],
+      ["Renewal control", "Renewals missed", "MED"],
+      ["Appetite management", "Manual & inconsistent", "MED"],
+    ];
+    // Header
+    s.addShape(pres.shapes.RECTANGLE, { x: 5.1, y: 1.38, w: 4.5, h: 0.38, fill: { color: NAV }, line: { color: NAV } });
+    ["Target", "Current State", "Gap"].forEach((h, i) => {
+      s.addText(h, { x: 5.1 + i * 1.5, y: 1.38, w: 1.5, h: 0.38, fontSize: 10, bold: true, color: WHT, fontFace: "Calibri", align: "center", valign: "middle" });
+    });
+    gaps.forEach((r, i) => {
+      const bg = i % 2 === 0 ? WHT : "EDF2FA";
+      const gapColor = r[2] === "HIGH" ? RED : YLW;
+      s.addShape(pres.shapes.RECTANGLE, { x: 5.1, y: 1.78 + i * 0.44, w: 3.0, h: 0.42, fill: { color: bg }, line: { color: "CBD5E1" } });
+      s.addText(r[0], { x: 5.12, y: 1.78 + i * 0.44, w: 1.48, h: 0.42, fontSize: 10, color: "1E293B", fontFace: "Calibri", align: "left", valign: "middle" });
+      s.addText(r[1], { x: 6.62, y: 1.78 + i * 0.44, w: 1.48, h: 0.42, fontSize: 10, color: GRY, fontFace: "Calibri", align: "center", valign: "middle" });
+      s.addShape(pres.shapes.RECTANGLE, { x: 8.1, y: 1.78 + i * 0.44, w: 1.5, h: 0.42, fill: { color: bg }, line: { color: "CBD5E1" } });
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 8.3, y: 1.88 + i * 0.44, w: 1.1, h: 0.24, fill: { color: gapColor }, rectRadius: 0.04, line: { color: gapColor } });
+      s.addText(r[2], { x: 8.3, y: 1.88 + i * 0.44, w: 1.1, h: 0.24, fontSize: 10, bold: true, color: WHT, fontFace: "Calibri", align: "center", valign: "middle" });
+    });
+
+    // Key insight box
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+      x: 0.4, y: 4.85, w: 9.2, h: 0.62, fill: { color: "FFF7ED" }, rectRadius: 0.08,
+      line: { color: YLW, pt: 1.5 }
+    });
+    s.addText("KEY INSIGHT  ", { x: 0.6, y: 4.92, w: 1.4, h: 0.42, fontSize: 10, bold: true, color: YLW, fontFace: "Calibri", valign: "middle" });
+    s.addText("The organisation has documented processes but lacks operational governance and adherence.", {
+      x: 2.0, y: 4.92, w: 7.4, h: 0.42, fontSize: 11, color: "78350F", fontFace: "Calibri", valign: "middle"
+    });
+  }
+
+  // ─── SLIDE 4: STAKEHOLDER ANALYSIS ─────────────────────────────────────────
+  {
+    const s = pres.addSlide();
+    s.background = { color: LGT };
+
+    s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 0.85, fill: { color: NAV }, line: { color: NAV } });
+    s.addText("STAKEHOLDER ANALYSIS", { x: 0.5, y: 0, w: 9, h: 0.85, fontSize: 22, bold: true, color: WHT, fontFace: "Cambria", valign: "middle" });
+
+    // Stakeholder cards
+    const stakeholders = [
+      { name: "Diane", role: "COO", disc: "High D / Medium I", concern: "Growth and conversion", style: "Strategic · Outcome focused · Frustrated by lack of data", color: "1A6B5A" },
+      { name: "Priya", role: "Operations", disc: "High S / Medium C", concern: "Reliability", style: "Operational · Process focused · Defending current performance", color: MID },
+      { name: "James", role: "UW Manager", disc: "High D / High C", concern: "Efficiency", style: "Frustrated · Efficiency focused · Solution oriented", color: "7C3AED" },
+    ];
+    stakeholders.forEach((st, i) => {
+      const x = 0.4 + i * 3.1;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+        x, y: 1.0, w: 2.9, h: 2.9, fill: { color: WHT }, rectRadius: 0.1,
+        shadow: { type: "outer", color: "000000", blur: 10, offset: 3, angle: 45, opacity: 0.1 }
+      });
+      s.addShape(pres.shapes.RECTANGLE, { x, y: 1.0, w: 2.9, h: 0.55, fill: { color: st.color }, line: { color: st.color } });
+      s.addText(st.name, { x: x + 0.15, y: 1.02, w: 1.8, h: 0.52, fontSize: 15, bold: true, color: WHT, fontFace: "Cambria", valign: "middle" });
+      s.addText(st.role, { x: x + 1.9, y: 1.02, w: 0.85, h: 0.52, fontSize: 10, color: "D0E8FF", fontFace: "Calibri", align: "right", valign: "middle" });
+      s.addText("DISC: " + st.disc, { x: x + 0.15, y: 1.65, w: 2.6, h: 0.3, fontSize: 10, bold: true, color: st.color, fontFace: "Calibri" });
+      s.addText("Primary concern: " + st.concern, { x: x + 0.15, y: 2.0, w: 2.6, h: 0.3, fontSize: 10.5, color: "374151", fontFace: "Calibri" });
+      s.addText(st.style, { x: x + 0.15, y: 2.35, w: 2.6, h: 0.5, fontSize: 10, color: GRY, fontFace: "Calibri", italic: true });
+    });
+
+    // Proposed solutions
+    s.addText("Each stakeholder proposes a different solution — but all describe the same root cause:", {
+      x: 0.4, y: 4.05, w: 9.2, h: 0.35, fontSize: 11.5, color: "334155", fontFace: "Calibri", italic: true
+    });
+    const sols = [
+      { who: "Diane → Mobile App", color: "1A6B5A" },
+      { who: "Priya → Force Portal Usage", color: MID },
+      { who: "James → AI", color: "7C3AED" },
+    ];
+    sols.forEach((sol, i) => {
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.4 + i * 3.1, y: 4.45, w: 2.9, h: 0.45, fill: { color: sol.color }, rectRadius: 0.06, line: { color: sol.color } });
+      s.addText(sol.who, { x: 0.4 + i * 3.1, y: 4.45, w: 2.9, h: 0.45, fontSize: 12, bold: true, color: WHT, fontFace: "Calibri", align: "center", valign: "middle" });
+    });
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.4, y: 5.05, w: 9.2, h: 0.42, fill: { color: ACC }, rectRadius: 0.06, line: { color: ACC } });
+    s.addText("Root cause: Lack of controlled intake and workflow management", {
+      x: 0.4, y: 5.05, w: 9.2, h: 0.42, fontSize: 12, bold: true, color: WHT, fontFace: "Calibri", align: "center", valign: "middle"
+    });
+  }
+
+  // ─── SLIDE 5: IMPACT OF CURRENT STATE ──────────────────────────────────────
+  {
+    const s = pres.addSlide();
+    s.background = { color: LGT };
+
+    s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 0.85, fill: { color: NAV }, line: { color: NAV } });
+    s.addText("IMPACT OF CURRENT STATE", { x: 0.5, y: 0, w: 9, h: 0.85, fontSize: 22, bold: true, color: WHT, fontFace: "Cambria", valign: "middle" });
+
+    const cols = [
+      {
+        title: "Underwriters", color: RED, items: ["Duplicate effort", "Manual administration", "Time reviewing out-of-appetite risks"]
+      },
+      {
+        title: "Operations", color: YLW, items: ["Manual reconciliation", "Difficult bordereau production", "Inability to monitor SLAs"]
+      },
+      {
+        title: "Management", color: "7C3AED", items: ["No reliable conversion reporting", "No visibility of workload", "Inability to forecast growth"]
+      },
+    ];
+    cols.forEach((col, i) => {
+      const x = 0.4 + i * 3.1;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+        x, y: 1.0, w: 2.9, h: 2.5, fill: { color: WHT }, rectRadius: 0.08,
+        shadow: { type: "outer", color: "000000", blur: 6, offset: 2, angle: 45, opacity: 0.1 }
+      });
+      s.addShape(pres.shapes.RECTANGLE, { x, y: 1.0, w: 2.9, h: 0.45, fill: { color: col.color }, line: { color: col.color } });
+      s.addText(col.title, { x, y: 1.0, w: 2.9, h: 0.45, fontSize: 13, bold: true, color: WHT, fontFace: "Cambria", align: "center", valign: "middle" });
+      col.items.forEach((item, j) => {
+        s.addShape(pres.shapes.OVAL, { x: x + 0.18, y: 1.58 + j * 0.56, w: 0.16, h: 0.16, fill: { color: col.color }, line: { color: col.color } });
+        s.addText(item, { x: x + 0.42, y: 1.54 + j * 0.56, w: 2.35, h: 0.32, fontSize: 11, color: "334155", fontFace: "Calibri", valign: "middle" });
+      });
+    });
+
+    // Commercial & Risk
+    s.addText("Commercial Impact", { x: 0.4, y: 3.65, w: 4.3, h: 0.3, fontSize: 13, bold: true, color: NAV, fontFace: "Cambria" });
+    const commercial = ["Revenue leakage from delayed responses", "Lost renewals and missed opportunities", "Current model: More submissions = More headcount"];
+    commercial.forEach((c, i) => {
+      s.addShape(pres.shapes.RECTANGLE, { x: 0.4, y: 4.0 + i * 0.38, w: 0.06, h: 0.3, fill: { color: ACC }, line: { color: ACC } });
+      s.addText(c, { x: 0.6, y: 3.97 + i * 0.38, w: 3.9, h: 0.35, fontSize: 11, color: "334155", fontFace: "Calibri", valign: "middle" });
+    });
+
+    s.addText("Risk Impact", { x: 5.2, y: 3.65, w: 4.3, h: 0.3, fontSize: 13, bold: true, color: NAV, fontFace: "Cambria" });
+    const risks = ["Compliance risk", "Reporting risk", "Reputation risk", "Key person dependency"];
+    risks.forEach((r, i) => {
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 5.2 + (i % 2) * 2.25, y: 4.0 + Math.floor(i / 2) * 0.55, w: 2.1, h: 0.44, fill: { color: "FEF2F2" }, rectRadius: 0.05, line: { color: RED, pt: 0.5 } });
+      s.addText(r, { x: 5.2 + (i % 2) * 2.25, y: 4.0 + Math.floor(i / 2) * 0.55, w: 2.1, h: 0.44, fontSize: 10.5, color: RED, fontFace: "Calibri", align: "center", valign: "middle" });
+    });
+  }
+
+  // ─── SLIDE 6: SOLUTION OPTIONS ──────────────────────────────────────────────
+  {
+    const s = pres.addSlide();
+    s.background = { color: LGT };
+
+    s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 0.85, fill: { color: NAV }, line: { color: NAV } });
+    s.addText("SOLUTION OPTIONS & TRADE-OFFS", { x: 0.5, y: 0, w: 9, h: 0.85, fontSize: 22, bold: true, color: WHT, fontFace: "Cambria", valign: "middle" });
+
+    const options = [
+      {
+        num: "01", title: "Hire More\nUnderwriters", recommended: false,
+        pros: ["Immediate capacity increase"],
+        cons: ["Doesn't address root causes", "Duplicates inefficiency", "Increases operating cost"],
+        border: GRY
+      },
+      {
+        num: "02", title: "Force Portal\nAdoption", recommended: false,
+        pros: ["Improved structured data", "Reduced manual input"],
+        cons: ["Broker resistance", "Doesn't solve workflow mgmt", "Out of scope under SOW"],
+        border: GRY
+      },
+      {
+        num: "03", title: "AI-Driven\nIntake", recommended: false,
+        pros: ["Potential automation", "Reduced manual processing"],
+        cons: ["Poor data limits effectiveness", "Risk of automating broken process", "Requires controlled workflow first"],
+        border: GRY
+      },
+      {
+        num: "04", title: "Process &\nWorkflow Foundation", recommended: true,
+        pros: ["Addresses root causes", "Improves visibility", "Enables future automation", "Creates measurable outcomes"],
+        cons: ["Requires organisational change", "Benefits realised incrementally"],
+        border: ACC
+      },
+    ];
+
+    options.forEach((opt, i) => {
+      const x = 0.25 + i * 2.4;
+      const isRec = opt.recommended;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+        x, y: 0.95, w: 2.2, h: 4.5, fill: { color: isRec ? "FFF7ED" : WHT }, rectRadius: 0.1,
+        shadow: { type: "outer", color: "000000", blur: isRec ? 14 : 6, offset: isRec ? 4 : 2, angle: 45, opacity: isRec ? 0.18 : 0.1 },
+        line: { color: opt.border, pt: isRec ? 2 : 0.5 }
+      });
+      s.addText(opt.num, { x: x + 0.15, y: 1.05, w: 0.55, h: 0.45, fontSize: 18, bold: true, color: isRec ? ACC : "CBD5E1", fontFace: "Cambria" });
+      if (isRec) {
+        s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x + 0.7, y: 1.05, w: 1.3, h: 0.32, fill: { color: ACC }, rectRadius: 0.05, line: { color: ACC } });
+        s.addText("RECOMMENDED", { x: x + 0.7, y: 1.05, w: 1.3, h: 0.32, fontSize: 8.5, bold: true, color: WHT, fontFace: "Calibri", align: "center", valign: "middle" });
+      }
+      s.addText(opt.title, { x: x + 0.1, y: 1.5, w: 2.0, h: 0.7, fontSize: 12.5, bold: true, color: isRec ? NAV : "334155", fontFace: "Cambria", align: "left" });
+      s.addText("✔ Benefits", { x: x + 0.1, y: 2.28, w: 2.0, h: 0.28, fontSize: 10, bold: true, color: GRN, fontFace: "Calibri" });
+      opt.pros.forEach((p, j) => {
+        s.addText(p, { x: x + 0.15, y: 2.58 + j * 0.38, w: 1.95, h: 0.35, fontSize: 9.5, color: "374151", fontFace: "Calibri" });
+      });
+      const consY = 2.58 + opt.pros.length * 0.38 + 0.1;
+      s.addText("✘ Drawbacks", { x: x + 0.1, y: consY, w: 2.0, h: 0.28, fontSize: 10, bold: true, color: RED, fontFace: "Calibri" });
+      opt.cons.forEach((c, j) => {
+        s.addText(c, { x: x + 0.15, y: consY + 0.3 + j * 0.38, w: 1.95, h: 0.35, fontSize: 9.5, color: GRY, fontFace: "Calibri" });
+      });
+    });
+  }
+
+  // ─── SLIDE 7: PROPOSED FUTURE CAPABILITY (EPICS) ───────────────────────────
+  {
+    const s = pres.addSlide();
+    s.background = { color: NAV };
+
+    s.addText("PROPOSED FUTURE CAPABILITY", { x: 0.5, y: 0.2, w: 9, h: 0.55, fontSize: 22, bold: true, color: WHT, fontFace: "Cambria" });
+    s.addText("Seven epics to transform submission handling", { x: 0.5, y: 0.72, w: 9, h: 0.3, fontSize: 12, color: "A0B4D0", fontFace: "Calibri" });
+
+    const epics = [
+      { num: "E1", title: "Submission Intake Mgmt", items: ["Central intake capability", "Submission registration", "Audit trail creation"], color: "0891B2" },
+      { num: "E2", title: "Triage & Work Allocation", items: ["Queue management", "Ownership assignment", "SLA monitoring & escalation"], color: "7C3AED" },
+      { num: "E3", title: "Data Quality & Validation", items: ["Mandatory fields", "Validation rules", "Structured submission records"], color: "1A6B5A" },
+      { num: "E4", title: "Appetite & Duplicate Mgmt", items: ["Appetite screening", "Duplicate detection", "Decline reason capture"], color: RED },
+      { num: "E5", title: "Workflow & Case Mgmt", items: ["Standard status model", "Progress tracking", "Renewal tracking"], color: YLW },
+      { num: "E6", title: "Management Information", items: ["Conversion funnel reporting", "SLA & broker reporting", "Operational dashboards"], color: GRN },
+      { num: "E7", title: "Future Automation", items: ["Document extraction", "AI-assisted triage", "AI appetite assessment"], color: ACC },
+    ];
+
+    // 4 top + 3 bottom
+    const positions = [
+      [0.25, 1.15], [2.63, 1.15], [5.01, 1.15], [7.39, 1.15],
+      [1.44, 3.3], [4.3, 3.3], [7.16, 3.3]
+    ];
+    epics.forEach((ep, i) => {
+      const [x, y] = positions[i];
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+        x, y, w: 2.2, h: 2.0, fill: { color: "1E3A5F" }, rectRadius: 0.1,
+        line: { color: ep.color, pt: 1.5 }
+      });
+      s.addShape(pres.shapes.OVAL, { x: x + 0.15, y: y + 0.15, w: 0.48, h: 0.48, fill: { color: ep.color }, line: { color: ep.color } });
+      s.addText(ep.num, { x: x + 0.15, y: y + 0.15, w: 0.48, h: 0.48, fontSize: 11, bold: true, color: WHT, fontFace: "Calibri", align: "center", valign: "middle" });
+      s.addText(ep.title, { x: x + 0.72, y: y + 0.15, w: 1.35, h: 0.5, fontSize: 10.5, bold: true, color: WHT, fontFace: "Calibri", valign: "top" });
+      ep.items.forEach((item, j) => {
+        s.addShape(pres.shapes.OVAL, { x: x + 0.22, y: y + 0.82 + j * 0.36, w: 0.1, h: 0.1, fill: { color: ep.color }, line: { color: ep.color } });
+        s.addText(item, { x: x + 0.38, y: y + 0.77 + j * 0.36, w: 1.7, h: 0.32, fontSize: 9.5, color: "C0D0E8", fontFace: "Calibri", valign: "middle" });
+      });
+    });
+  }
+
+  // ─── SLIDE 8: STAKEHOLDER MANAGEMENT STRATEGY ──────────────────────────────
+  {
+    const s = pres.addSlide();
+    s.background = { color: LGT };
+
+    s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 0.85, fill: { color: NAV }, line: { color: NAV } });
+    s.addText("STAKEHOLDER MANAGEMENT STRATEGY", { x: 0.5, y: 0, w: 9, h: 0.85, fontSize: 22, bold: true, color: WHT, fontFace: "Cambria", valign: "middle" });
+
+    // Influence map
+    s.addText("Influence Map", { x: 0.4, y: 1.0, w: 4.3, h: 0.32, fontSize: 13, bold: true, color: NAV, fontFace: "Cambria" });
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.4, y: 1.4, w: 4.3, h: 3.2, fill: { color: WHT }, line: { color: "CBD5E1" } });
+    // Axes
+    s.addText("High\nInfluence", { x: 0.42, y: 1.45, w: 0.6, h: 0.4, fontSize: 8, color: GRY, fontFace: "Calibri", align: "center" });
+    s.addText("Low\nInfluence", { x: 0.42, y: 4.15, w: 0.6, h: 0.4, fontSize: 8, color: GRY, fontFace: "Calibri", align: "center" });
+    s.addText("Low Interest", { x: 0.7, y: 4.5, w: 1.2, h: 0.25, fontSize: 8, color: GRY, fontFace: "Calibri" });
+    s.addText("High Interest", { x: 3.2, y: 4.5, w: 1.3, h: 0.25, fontSize: 8, color: GRY, fontFace: "Calibri" });
+    // Grid lines
+    s.addShape(pres.shapes.LINE, { x: 2.55, y: 1.4, w: 0, h: 3.2, line: { color: "CBD5E1", dashType: "dash", width: 1 } });
+    s.addShape(pres.shapes.LINE, { x: 0.4, y: 3.0, w: 4.3, h: 0, line: { color: "CBD5E1", dashType: "dash", width: 1 } });
+    // Stakeholder dots
+    const mapStakeholders = [
+      { name: "Diane", x: 3.8, y: 1.7, color: "1A6B5A" },
+      { name: "Priya", x: 3.4, y: 3.2, color: MID },
+      { name: "James", x: 3.6, y: 3.5, color: "7C3AED" },
+    ];
+    mapStakeholders.forEach(st => {
+      s.addShape(pres.shapes.OVAL, { x: st.x, y: st.y, w: 0.5, h: 0.5, fill: { color: st.color }, line: { color: st.color } });
+      s.addText(st.name, { x: st.x + 0.55, y: st.y + 0.08, w: 0.9, h: 0.32, fontSize: 9.5, bold: true, color: st.color, fontFace: "Calibri" });
+    });
+
+    // Messaging strategy
+    s.addText("Messaging Strategy", { x: 5.1, y: 1.0, w: 4.5, h: 0.32, fontSize: 13, bold: true, color: NAV, fontFace: "Cambria" });
+    const msgs = [
+      { name: "Diane", role: "Sponsor & Decision Maker", focus: ["Conversion", "Growth", "Revenue"], color: "1A6B5A" },
+      { name: "Priya", role: "Operational Adoption Owner", focus: ["Ownership", "Workflow control", "Service standards"], color: MID },
+      { name: "James", role: "Key SME & Change Advocate", focus: ["Productivity gains", "Reduction in rework", "Better submission quality"], color: "7C3AED" },
+    ];
+    msgs.forEach((m, i) => {
+      const y = 1.4 + i * 1.1;
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+        x: 5.1, y, w: 4.5, h: 1.0, fill: { color: WHT }, rectRadius: 0.08,
+        shadow: { type: "outer", color: "000000", blur: 6, offset: 2, angle: 45, opacity: 0.08 }
+      });
+      s.addShape(pres.shapes.RECTANGLE, { x: 5.1, y, w: 0.18, h: 1.0, fill: { color: m.color }, line: { color: m.color } });
+      s.addText(m.name, { x: 5.38, y: y + 0.08, w: 1.5, h: 0.3, fontSize: 12, bold: true, color: m.color, fontFace: "Cambria" });
+      s.addText(m.role, { x: 5.38, y: y + 0.38, w: 2.4, h: 0.22, fontSize: 9.5, color: GRY, fontFace: "Calibri", italic: true });
+      s.addText("Focus: " + m.focus.join(" · "), { x: 5.38, y: y + 0.62, w: 4.1, h: 0.28, fontSize: 10.5, color: "334155", fontFace: "Calibri" });
+    });
+
+    // Vision statement
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, {
+      x: 5.1, y: 4.6, w: 4.5, h: 0.78, fill: { color: NAV }, rectRadius: 0.08, line: { color: NAV }
+    });
+    s.addText('"Every submission visible, owned, measurable and actionable."', {
+      x: 5.2, y: 4.65, w: 4.3, h: 0.7, fontSize: 12.5, bold: true, color: WHT, fontFace: "Cambria", align: "center", valign: "middle", italic: true
+    });
+  }
+
+  // ─── SLIDE 9: FINAL SUMMARY & RECOMMENDATION ───────────────────────────────
+  {
+    const s = pres.addSlide();
+    s.background = { color: NAV };
+
+    // Title
+    s.addText("FINAL SUMMARY & RECOMMENDATION", { x: 0.5, y: 0.25, w: 9, h: 0.55, fontSize: 22, bold: true, color: WHT, fontFace: "Cambria" });
+    s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 0.82, w: 0.6, h: 0.05, fill: { color: ACC }, line: { color: ACC } });
+
+    // The real problem
+    s.addText("The Real Problem", { x: 0.5, y: 1.0, w: 4.5, h: 0.32, fontSize: 13, bold: true, color: ACC, fontFace: "Cambria" });
+    const notProblems = ["A portal problem", "An AI problem", "A reporting problem", "A headcount problem"];
+    notProblems.forEach((np, i) => {
+      s.addShape(pres.shapes.RECTANGLE, { x: 0.5, y: 1.42 + i * 0.45, w: 0.35, h: 0.32, fill: { color: "2D4A7A" }, line: { color: "2D4A7A" } });
+      s.addText("✗", { x: 0.5, y: 1.42 + i * 0.45, w: 0.35, h: 0.32, fontSize: 13, bold: true, color: RED, fontFace: "Calibri", align: "center", valign: "middle" });
+      s.addText(np, { x: 0.95, y: 1.44 + i * 0.45, w: 3.5, h: 0.3, fontSize: 12, color: "A0B4D0", fontFace: "Calibri", valign: "middle" });
+    });
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 3.28, w: 4.3, h: 0.58, fill: { color: "1E3A5F" }, rectRadius: 0.08, line: { color: ACC, pt: 1.5 } });
+    s.addText("Halstead lacks a controlled submission\nmanagement capability.", { x: 0.65, y: 3.32, w: 4.0, h: 0.5, fontSize: 11.5, bold: true, color: WHT, fontFace: "Calibri", valign: "middle" });
+
+    // Recommended phases
+    s.addText("Recommended Approach", { x: 5.1, y: 1.0, w: 4.5, h: 0.32, fontSize: 13, bold: true, color: ACC, fontFace: "Cambria" });
+    const phases = [
+      { ph: "Phase 1", desc: "Process control & workflow management", color: "0891B2" },
+      { ph: "Phase 2", desc: "Operational visibility & management information", color: "1A6B5A" },
+      { ph: "Phase 3", desc: "Automation & optimisation", color: "7C3AED" },
+      { ph: "Phase 4", desc: "AI-assisted processing", color: ACC },
+    ];
+    phases.forEach((ph, i) => {
+      s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 5.1, y: 1.42 + i * 0.55, w: 4.5, h: 0.48, fill: { color: "1E3A5F" }, rectRadius: 0.07, line: { color: ph.color, pt: 1 } });
+      s.addShape(pres.shapes.OVAL, { x: 5.22, y: 1.52 + i * 0.55, w: 0.3, h: 0.3, fill: { color: ph.color }, line: { color: ph.color } });
+      s.addText(String(i + 1), { x: 5.22, y: 1.52 + i * 0.55, w: 0.3, h: 0.3, fontSize: 10, bold: true, color: WHT, fontFace: "Calibri", align: "center", valign: "middle" });
+      s.addText(ph.ph + ": ", { x: 5.62, y: 1.49 + i * 0.55, w: 0.95, h: 0.36, fontSize: 11, bold: true, color: ph.color, fontFace: "Calibri", valign: "middle" });
+      s.addText(ph.desc, { x: 6.55, y: 1.49 + i * 0.55, w: 2.95, h: 0.36, fontSize: 11, color: "C0D0E8", fontFace: "Calibri", valign: "middle" });
+    });
+
+    // Closing
+    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: 0.5, y: 4.15, w: 9.0, h: 1.28, fill: { color: ACC }, rectRadius: 0.1, line: { color: ACC } });
+    s.addText([
+      { text: "Create process control first.", options: { breakLine: true, bold: true } },
+      { text: "Create reliable data second.", options: { breakLine: true, bold: true } },
+      { text: "Then automate and scale.", options: { bold: true } }
+    ], { x: 0.7, y: 4.2, w: 8.6, h: 1.18, fontSize: 15, color: WHT, fontFace: "Cambria", align: "center", valign: "middle" });
+  }
+
+  await pres.writeFile({ fileName: "/home/claude/halstead_submission_discovery.pptx" });
+  console.log("done");
+}
+
+main().catch(console.error);
